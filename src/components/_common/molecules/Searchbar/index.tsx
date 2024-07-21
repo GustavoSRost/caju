@@ -5,8 +5,14 @@ import { IconButton } from "~/components/_common/atoms/Buttons/IconButton";
 import TextField from "~/components/_common/atoms/TextField";
 import routes from "~/router/routes";
 import * as S from "./styles";
-export const SearchBar = () => {
+
+type Props = {
+  fetchUsers: ()=> void;
+}
+export const SearchBar: React.FC<Props>  = ({fetchUsers}) =>{
   const history = useHistory();
+
+  const handleRefresh = () => fetchUsers();
 
   const goToNewAdmissionPage = () => {
     history.push(routes.newUser);
@@ -16,7 +22,7 @@ export const SearchBar = () => {
     <S.Container>
       <TextField  placeholder="Digite um CPF válido" />
       <S.Actions>
-        <IconButton aria-label="refetch">
+        <IconButton aria-label="refetch" onClick={handleRefresh}>
           <HiRefresh />
         </IconButton>
         <Button onClick={() => goToNewAdmissionPage()}>Nova Admissão</Button>

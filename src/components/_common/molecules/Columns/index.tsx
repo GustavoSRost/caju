@@ -1,41 +1,42 @@
-
+import { User } from "~/types/userTypes";
 import * as S from "./styles";
 import RegistrationCard from "~/components/_common/molecules/RegistrationCard";
+import { ColumnStatus } from "~/enums/ColumnStatus";
 
 const allColumns = [
-  { status: 'REVIEW', title: "Pronto para revisar" },
-  { status: 'APPROVED', title: "Aprovado" },
-  { status: 'REPROVED', title: "Reprovado" },
+  { status: ColumnStatus.REVIEW, title: "Pronto para revisar" },
+  { status: ColumnStatus.APPROVED, title: "Aprovado" },
+  { status: ColumnStatus.REPROVED, title: "Reprovado" },
 ];
 
 type Props = {
-  registrations?: any[];
+  registrations: User[];
+  fetchUsers: () => void;
 };
-const Collumns = (props: Props) => {
+
+const Columns: React.FC<Props> = ({ registrations, fetchUsers }) => {
   return (
     <S.Container>
-      {allColumns.map((collum) => {
-        return (
-          <S.Column status={collum.status} key={collum.title}>
-            <>
-              <S.TitleColumn status={collum.status}>
-                {collum.title}
-              </S.TitleColumn>
-              <S.CollumContent>
-                {props?.registrations?.map((registration) => {
-                  return (
-                    <RegistrationCard
-                      data={registration}
-                      key={registration.id}
-                    />
-                  );
-                })}
-              </S.CollumContent>
-            </>
-          </S.Column>
-        );
-      })}
+      {allColumns.map((column) => (
+        <S.Column status={column.status} key={column.title}>
+          <>
+            <S.TitleColumn status={column.status}>{column.title}</S.TitleColumn>
+            <S.columnContent>
+              {registrations
+                .filter((r) => r.status === column.status)
+                .map((r) => (
+                  <RegistrationCard
+                    data={r}
+                    key={r.id}
+                    fetchUsers={fetchUsers}
+                  />
+                ))}
+            </S.columnContent>
+          </>
+        </S.Column>
+      ))}
     </S.Container>
   );
 };
-export default Collumns;
+
+export default Columns;
