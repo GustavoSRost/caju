@@ -12,13 +12,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/yup": "^0.32.0",
     "axios": "^1.7.2",
+    "formik": "^2.4.6",
     "json-server": "^1.0.0-beta.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^5.2.1",
     "react-router-dom": "5.1.2",
-    "styled-components": "^6.1.11"
+    "styled-components": "^6.1.11",
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@nabla/vite-plugin-eslint": "^2.0.4",

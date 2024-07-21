@@ -1,6 +1,6 @@
-import Collumns from "./components/Columns";
+import Collumns from "~/components/_common/molecules/Collumns";
 import * as S from "./styles";
-import { SearchBar } from "./components/Searchbar";
+import { SearchBar } from "~/components/_common/molecules/Searchbar";
 
 const DashboardPage = () => {
   return (
