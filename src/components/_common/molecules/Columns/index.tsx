@@ -1,7 +1,10 @@
+import { useState, useEffect } from "react";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { User } from "~/types/userTypes";
-import * as S from "./styles";
-import RegistrationCard from "~/components/_common/molecules/RegistrationCard";
 import { ColumnStatus } from "~/enums/ColumnStatus";
+import RegistrationCard from "~/components/_common/molecules/RegistrationCard";
+import useAction from "~/hooks/useActions";
+import * as S from "./styles";
 
 const allColumns = [
   { status: ColumnStatus.REVIEW, title: "Pronto para revisar" },
@@ -15,27 +18,82 @@ type Props = {
 };
 
 const Columns: React.FC<Props> = ({ registrations, fetchUsers }) => {
+  const { performAction } = useAction();
+  const [users, setUsers] = useState<User[]>(registrations);
+
+  useEffect(() => {
+    setUsers(registrations);
+  }, [registrations]);
+
+  const handleOnDragEnd = async (result: any) => {
+    const { destination, source, draggableId } = result;
+
+    if (!destination) {
+      return;
+    }
+
+    const user = users.find((u) => u.id === draggableId);
+    if (!user) {
+      return;
+    }
+
+    const newStatus = allColumns.find((column) => column.title === destination.droppableId)?.status;
+    if (!newStatus) {
+      return;
+    }
+
+    await performAction(newStatus, user);
+
+    const updatedUsers = users.map((u) =>
+      u.id === user.id ? { ...u, status: newStatus } : u
+    );
+    setUsers(updatedUsers);
+
+    fetchUsers();
+  };
+
   return (
-    <S.Container>
-      {allColumns.map((column) => (
-        <S.Column status={column.status} key={column.title}>
-          <>
-            <S.TitleColumn status={column.status}>{column.title}</S.TitleColumn>
-            <S.columnContent>
-              {registrations
-                .filter((r) => r.status === column.status)
-                .map((r) => (
-                  <RegistrationCard
-                    data={r}
-                    key={r.id}
-                    fetchUsers={fetchUsers}
-                  />
-                ))}
-            </S.columnContent>
-          </>
-        </S.Column>
-      ))}
-    </S.Container>
+    <DragDropContext onDragEnd={handleOnDragEnd}>
+      <Droppable droppableId="all-columns" direction="horizontal">
+        {(provided: any) => (
+          <S.Container ref={provided.innerRef} {...provided.droppableProps}>
+            {allColumns.map((column, index) => (
+              <Droppable key={column.title} droppableId={column.title} direction="vertical">
+                {(provided: any) => (
+                  <S.Column
+                    status={column.status}
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                  >
+                    <S.TitleColumn status={column.status}>
+                      {column.title}
+                    </S.TitleColumn>
+                    <S.columnContent>
+                      {users
+                        .filter((user) => user.status === column.status)
+                        .map((user, index) => (
+                          <Draggable key={user.id} draggableId={user.id} index={index}>
+                            {(provided) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                              >
+                                <RegistrationCard data={user} fetchUsers={fetchUsers} />
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                      {provided.placeholder}
+                    </S.columnContent>
+                  </S.Column>
+                )}
+              </Droppable>
+            ))}
+          </S.Container>
+        )}
+      </Droppable>
+    </DragDropContext>
   );
 };
 

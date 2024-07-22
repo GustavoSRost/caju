@@ -9,6 +9,7 @@ import {
 import { User } from "~/types/userTypes";
 import useAction from "~/hooks/useActions";
 import { ColumnStatus } from "~/enums/ColumnStatus";
+import LoadingBarComponent from "~/components/_common/atoms/LoadingBar";
 
 type Props = {
   data: User;
@@ -18,65 +19,56 @@ type Props = {
 const RegistrationCard: React.FC<Props> = ({ data, fetchUsers }) => {
   const { status, error, performAction } = useAction();
 
-  const handleApprove = async () => {
-    await performAction(ColumnStatus.APPROVED, data);
-    fetchUsers();
-  };
-
-  const handleReprove = async () => {
-    await performAction(ColumnStatus.REPROVED, data);
-    fetchUsers();
-  };
-
-  const handleReview = async () => {
-    await performAction(ColumnStatus.REVIEW, data);
-    fetchUsers();
-  };
-
-  const handleDelete = async () => {
-    await performAction(ColumnStatus.DELETED, data);
+  const handleAction = async (status: ColumnStatus) => {
+    await performAction(status, data);
     fetchUsers();
   };
 
   return (
     <S.Card>
       <S.IconAndText>
-        <HiOutlineUser />
+        <HiOutlineUser aria-label="Employee Name" />
         <h3>{data.employeeName}</h3>
       </S.IconAndText>
       <S.IconAndText>
-        <HiOutlineMail />
+        <HiOutlineMail aria-label="Email" />
         <p>{data.email}</p>
       </S.IconAndText>
       <S.IconAndText>
-        <HiOutlineCalendar />
+        <HiOutlineCalendar aria-label="Admission Date" />
         <span>{data.admissionDate}</span>
       </S.IconAndText>
       <S.Actions>
-        {data.status != ColumnStatus.REPROVED && (
-          <ButtonSmall bgcolor="rgb(255, 145, 154)" onClick={handleReprove}>
+        {data.status !== ColumnStatus.REPROVED && (
+          <ButtonSmall
+            bgcolor="rgb(255, 145, 154)"
+            onClick={() => handleAction(ColumnStatus.REPROVED)}
+          >
             Reprovar
           </ButtonSmall>
         )}
-        {data.status != ColumnStatus.APPROVED && (
+        {data.status !== ColumnStatus.APPROVED && (
           <ButtonSmall
             bgcolor="rgb(155, 229, 155)"
-            onClick={handleApprove}
+            onClick={() => handleAction(ColumnStatus.APPROVED)}
           >
             Aprovar
           </ButtonSmall>
         )}
-        {data.status != ColumnStatus.REVIEW && (
+        {data.status !== ColumnStatus.REVIEW && (
           <ButtonSmall
             bgcolor="#ff8858"
-            onClick={handleReview}
+            onClick={() => handleAction(ColumnStatus.REVIEW)}
           >
             Revisar novamente
           </ButtonSmall>
         )}
-        <HiOutlineTrash onClick={handleDelete} />
+        <HiOutlineTrash
+          aria-label="Delete"
+          onClick={() => handleAction(ColumnStatus.DELETED)}
+        />
       </S.Actions>
-      {status === "loading" && <p>Loading...</p>}
+      {status === "loading" && <LoadingBarComponent />}
       {status === "failed" && <p>Error: {error}</p>}
     </S.Card>
   );
