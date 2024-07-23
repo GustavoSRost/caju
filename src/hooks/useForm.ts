@@ -4,6 +4,7 @@ import { User } from "~/types/userTypes";
 import { formatDate } from "~/utils/validations";
 import useActionHandler from "~/hooks/useActionHandler";
 import { ColumnStatus } from "~/enums/ColumnStatus";
+import { removeCpfMask } from "~/utils/mask";
 
 type ValidationErrors = {
   [key: string]: string;
@@ -11,6 +12,7 @@ type ValidationErrors = {
 
 type FormValues = {
   admissionDate: string;
+  cpf: string;
 } & Record<string, any>;
 
 const useFormValidation = <T extends FormValues>(
@@ -64,12 +66,13 @@ const useFormValidation = <T extends FormValues>(
         admissionDate: values.admissionDate
           ? formatDate(values.admissionDate)
           : "",
+        cpf: values.cpf ? removeCpfMask(values.cpf) : "",
       };
 
       const isValid = await validateForm(formattedValues);
       if (isValid) {
         confirmAction(
-          ColumnStatus.REVIEW, 
+          ColumnStatus.REVIEW,
           formattedValues as unknown as User,
           fetchUsers,
           () => createUser(formattedValues as unknown as User)
