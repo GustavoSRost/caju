@@ -1,0 +1,1 @@
+export type SeverityTypes = "error" | "success" | "info" | "warn";

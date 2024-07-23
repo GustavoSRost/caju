@@ -18,7 +18,7 @@ const useRegistrations = () => {
       if (cpf && response.data.length === 0) {
         setError('Digite um CPF válido.');
       } else {
-        setError(null); 
+        setError(null);
       }
       
       setUsers(response.data);

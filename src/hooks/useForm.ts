@@ -1,21 +1,28 @@
 import { useState, useCallback } from "react";
 import * as Yup from "yup";
-import useAction from "./useActions";
 import { User } from "~/types/userTypes";
 import { formatDate } from "~/utils/validations";
+import useActionHandler from "~/hooks/useActionHandler";
+import { ColumnStatus } from "~/enums/ColumnStatus";
 
 type ValidationErrors = {
   [key: string]: string;
 };
 
-const useFormValidation = <T>(
+type FormValues = {
+  admissionDate: string;
+} & Record<string, any>;
+
+const useFormValidation = <T extends FormValues>(
   initialValues: T,
-  validationSchema: Yup.ObjectSchema<any>
+  validationSchema: Yup.ObjectSchema<any>,
+  createUser: (user: User) => Promise<void>,
+  fetchUsers: () => void
 ) => {
   const [values, setValues] = useState<T>(initialValues);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { createUser } = useAction();
+  const { confirmAction } = useActionHandler();
 
   const validateForm = useCallback(
     async (values: T) => {
@@ -61,12 +68,18 @@ const useFormValidation = <T>(
 
       const isValid = await validateForm(formattedValues);
       if (isValid) {
-        await createUser(formattedValues as unknown as User);
+        confirmAction(
+          ColumnStatus.REVIEW, 
+          formattedValues as unknown as User,
+          fetchUsers,
+          () => createUser(formattedValues as unknown as User)
+        );
       }
       setIsSubmitting(false);
     },
-    [validateForm, values, createUser]
+    [validateForm, values, confirmAction, createUser, fetchUsers]
   );
+
   return {
     values,
     errors,

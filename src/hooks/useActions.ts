@@ -5,11 +5,14 @@ import { ColumnStatus } from "~/enums/ColumnStatus";
 import { useHistory } from "react-router-dom";
 import routes from "~/router/routes";
 
+
 const useAction = () => {
   const [status, setStatus] = useState<UserState["status"]>("idle");
   const [error, setError] = useState<string | null>(null);
 
   const history = useHistory();
+
+
 
   const performAction = useCallback(
     async (action: ColumnStatus, user: User) => {
@@ -22,29 +25,25 @@ const useAction = () => {
 
         if (action === ColumnStatus.APPROVED) {
           await apiBase.put(route, { ...user, status: ColumnStatus.APPROVED });
-          //showToast("User approved successfully!");
         }
 
         if (action === ColumnStatus.REPROVED) {
           await apiBase.put(route, { ...user, status: ColumnStatus.REPROVED });
-          //showToast("User reproved successfully!");
         }
 
         if (action === ColumnStatus.REVIEW) {
           await apiBase.put(route, { ...user, status: ColumnStatus.REVIEW });
-          //showToast("User reviewed successfully!");
         }
 
         if (action === ColumnStatus.DELETED) {
           await apiBase.delete(route);
-          //showToast("User deleted successfully!");
         }
 
         setStatus("succeeded");
       } catch (err) {
         setError("An error occurred while performing the action.");
         setStatus("failed");
-        console.error(err);
+        console.error("An error occurred while performing the action.",err);
       }
     },
     []
@@ -53,11 +52,7 @@ const useAction = () => {
   const createUser = useCallback(async (user: User) => {
     setStatus("loading");
     try {
-      await apiBase.post("/registrations", {
-        ...user,
-        status: ColumnStatus.REVIEW,
-      });
-      //showToast("User created successfully!");
+      await apiBase.post("/registrations", {...user, status: ColumnStatus.REVIEW });
       history.push(routes.dashboard);
       setStatus("succeeded");
     } catch (err) {

@@ -10,6 +10,9 @@ import * as Yup from "yup";
 import useFormValidation from "~/hooks/useForm";
 import { FormData } from "~/types/form";
 import { isValidCPF } from "~/utils/validations";
+import useAction from "~/hooks/useActions";
+import useRegistrations from "~/hooks/useRegistration";
+import { ConfirmDialog } from "primereact/confirmdialog";
 
 const validationSchema = Yup.object({
   employeeName: Yup.string()
@@ -27,6 +30,8 @@ const validationSchema = Yup.object({
 
 const NewUserPage: React.FC = () => {
   const history = useHistory();
+  const { createUser } = useAction();
+  const { fetchUsers } = useRegistrations();
 
   const goToHome = () => {
     history.push(routes.dashboard);
@@ -35,7 +40,9 @@ const NewUserPage: React.FC = () => {
   const { values, errors, handleChange, handleSubmit, isSubmitting } =
     useFormValidation<FormData>(
       { employeeName: "", email: "", cpf: "", admissionDate: "" },
-      validationSchema
+      validationSchema,
+      createUser,
+      fetchUsers
     );
 
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,6 +99,7 @@ const NewUserPage: React.FC = () => {
           </Button>
         </form>
       </S.Card>
+      <ConfirmDialog />
     </S.Container>
   );
 };
